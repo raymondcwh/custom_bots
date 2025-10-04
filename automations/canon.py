@@ -14,6 +14,7 @@ from bot.tg_bot import Bot
 CANON_HK_URL = 'https://store.hk.canon/chinese/'
 G7X = CANON_HK_URL + 'powershot-g7-x-mark-iii.html'
 
+
 def check_g7x_in_stock():
     try:
         response = requests.get(G7X, timeout=10)
@@ -49,7 +50,11 @@ def notify_channel(product):
     elif in_stock < 0:
         message = f"Error occurred when checking {product} stock."
     else:
-        message = f"{product} availability check done at {dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')}"
+        hk_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
+        if hk_now.minute == 0:
+            message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
+        else:
+            message = ""
     if message:
         asyncio.run(notify(message))
     pass
