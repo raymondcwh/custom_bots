@@ -6,7 +6,7 @@ par_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(par_dir)
 
 from telegram.ext import ApplicationBuilder
-from private.constants import *
+from private.constants import CRYAMBLE_BOT_API_KEY, NOTI_CHANNEL_ID, MONEYFUCKER_CHANNEL_ID
 
 
 class Bot:

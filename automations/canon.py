@@ -8,7 +8,7 @@ import datetime as dt
 par_dir = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(par_dir)
 
-from private.constants import *
+from private.constants import NOTI_CHANNEL_ID
 from bot.tg_bot import Bot
 
 CANON_HK_URL = 'https://store.hk.canon/chinese/'
