@@ -13,7 +13,6 @@ from bot.tg_bot import Bot
 
 CANON_HK_URL = 'https://store.hk.canon/chinese/'
 G7X = CANON_HK_URL + 'powershot-g7-x-mark-iii.html'
-# G7X = CANON_HK_URL + 'powershot-golf.html'
 
 def check_g7x_in_stock():
     try:
