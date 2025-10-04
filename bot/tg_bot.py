@@ -1,5 +1,4 @@
-import sys
-import os
+import os, sys
 import asyncio
 
 # Add the root directory of codes to the sys.path
@@ -12,10 +11,11 @@ from private.constants import *
 
 class Bot:
     def __init__(self, channel_id):
+        self.channel_id = channel_id
         self.application = ApplicationBuilder().token(CRYAMBLE_BOT_API_KEY).build()
 
     async def run(self):
-        print("Bot running...")
+        # print("Bot running...")
         await self.application.initialize()
         await self.application.start()
         await self.application.updater.start_polling()
@@ -26,17 +26,15 @@ class Bot:
         await self.application.stop()
 
     async def send_signals(self, message):
-        await self.application.bot.send_message(chat_id=channel_id, text=message)
+        await self.application.bot.send_message(chat_id=self.channel_id, text=message)
         
-
-
 
 def bot_test(channel_id):
     bot = Bot(channel_id)
-    async def main():
+    async def test():
         await bot.run()
         await bot.send_signals("Test message from bot...")
-    asyncio.run(main())
+    asyncio.run(test())
     pass
 
 
