@@ -38,17 +38,19 @@ def notify_channel(product):
     else:
         return
     # print('running check_g7x_in_stock:', in_stock)
+
     bot = Bot(NOTI_CHANNEL_ID)
     async def notify(message):
         await bot.run()
         await bot.send_signals(message)
         await bot.stop()
+    
     if in_stock > 0:
         message = f"{product} is in stock now! Click {product_url}"
     elif in_stock < 0:
         message = f"Error occurred when checking {product} stock."
     else:
-        message = f"{product} stock availability check done at {dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')}"
+        message = f"{product} availability check done at {dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')}"
     if message:
         asyncio.run(notify(message))
     pass
