@@ -17,7 +17,7 @@ G7X = CANON_HK_URL + 'powershot-g7-x-mark-iii.html'
 
 def check_g7x_in_stock():
     try:
-        response = requests.get(G7X, timeout=10)
+        response = requests.get(G7X, timeout=60)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         product_info = soup.find('div', class_='product-info-main')
@@ -28,6 +28,7 @@ def check_g7x_in_stock():
         else:
             return 0    # Indicate out of stock
     except requests.RequestException as e:
+        print(f"Error checking G7X stock: {e}")
         return -1   # Indicate an error occurred
     
 
