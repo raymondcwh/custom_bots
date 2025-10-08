@@ -19,10 +19,11 @@ class Bot:
         await self.application.initialize()
         await self.application.start()
         await self.application.updater.start_polling()
-        # await self.send_signals(f"{dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}\nBot started...")
+        # await self.send_signals(f"{dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}\nBot started...")  # Optional: notify when bot starts
         # await self.application.updater.idle()
 
     async def stop(self):
+        # await self.send_signals(f"Shutting down bot...")  # Optional: notify before shutting down
         await self.application.stop()
 
     async def send_signals(self, message):

@@ -31,7 +31,7 @@ def check_g7x_in_stock():
         return -1   # Indicate an error occurred
     
 
-def notify_channel(product):
+async def notify_channel(product):
     if product.casefold() == "g7x":
         in_stock = check_g7x_in_stock()
         product_url = G7X
@@ -40,10 +40,7 @@ def notify_channel(product):
     # print('running check_g7x_in_stock:', in_stock)
 
     bot = Bot(NOTI_CHANNEL_ID)
-    async def notify(message):
-        await bot.run()
-        await bot.send_signals(message)
-        await bot.stop()
+    await bot.run()
     
     if in_stock > 0:
         message = f"{product} is in stock now! Click {product_url}"
@@ -56,10 +53,11 @@ def notify_channel(product):
         else:
             message = ""
     if message:
-        asyncio.run(notify(message))
+        asyncio.run(bot.send_signals(message))
+    await bot.stop()
     pass
 
 
 if __name__ == "__main__":
     product = sys.argv[1].upper()
-    notify_channel(product)
+    asyncio.run(notify_channel(product))
