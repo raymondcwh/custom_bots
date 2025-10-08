@@ -13,6 +13,7 @@ class Bot:
     def __init__(self, channel_id):
         self.channel_id = channel_id
         self.application = ApplicationBuilder().token(CRYAMBLE_BOT_API_KEY).build()
+        # self.application.add_error_handler(self.error_handler)
 
     async def run(self):
         # print("Bot running...")
@@ -24,10 +25,15 @@ class Bot:
 
     async def stop(self):
         # await self.send_signals(f"Shutting down bot...")  # Optional: notify before shutting down
+        await self.application.updater.stop()
         await self.application.stop()
+        await self.application.shutdown()
 
     async def send_signals(self, message):
         await self.application.bot.send_message(chat_id=self.channel_id, text=message)
+
+    # async def error_handler(self, update, context):
+    #     print(f"An error occurred: {context.error}")
         
 
 def bot_test(channel_id):

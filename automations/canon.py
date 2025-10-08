@@ -41,7 +41,6 @@ async def notify_channel(product):
 
     bot = Bot(NOTI_CHANNEL_ID)
     await bot.run()
-    
     if in_stock > 0:
         message = f"{product} is in stock now! Click {product_url}"
     elif in_stock < 0:
@@ -53,7 +52,7 @@ async def notify_channel(product):
         else:
             message = ""
     if message:
-        asyncio.run(bot.send_signals(message))
+        await bot.send_signals(message)
     await bot.stop()
     pass
 
