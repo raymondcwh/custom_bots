@@ -13,6 +13,7 @@ from bot.tg_bot import Bot
 
 CANON_HK_URL = 'https://store.hk.canon/chinese/'
 G7X = CANON_HK_URL + 'powershot-g7-x-mark-iii.html'
+# G7X = CANON_HK_URL + 'powershotv1.html'
 
 
 def check_g7x_in_stock():
@@ -22,8 +23,11 @@ def check_g7x_in_stock():
         soup = BeautifulSoup(response.text, 'html.parser')
         product_info = soup.find('div', class_='product-info-main')
         product_stock = product_info.find('div', class_='product-info-stock-sku')
+        availability = product_stock.find('div', class_='stock available')
         unavailable_display = product_stock.find('div', class_='stock unavailable').get('style', '')
-        if len(unavailable_display):
+        # print(availability)
+        # print(unavailable_display)
+        if (availability is not None) or (unavailable_display is None) or (len(unavailable_display) > 0):
             return 1    # Indicate in stock
         else:
             return 0    # Indicate out of stock
@@ -39,6 +43,7 @@ async def notify_channel(product):
     else:
         return
     # print('running check_g7x_in_stock:', in_stock)
+    # return
 
     bot = Bot(NOTI_CHANNEL_ID)
     await bot.run()
