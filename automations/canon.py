@@ -12,8 +12,8 @@ from private.constants import NOTI_CHANNEL_ID
 from bot.tg_bot import Bot
 
 CANON_HK_URL = 'https://store.hk.canon/chinese/'
-G7X = CANON_HK_URL + 'powershot-g7-x-mark-iii.html'
-# G7X = CANON_HK_URL + 'powershotv1.html'
+# G7X = CANON_HK_URL + 'powershot-g7-x-mark-iii.html'
+G7X = CANON_HK_URL + 'powershotv1.html'
 
 
 def check_g7x_in_stock():
@@ -46,7 +46,7 @@ async def notify_channel(product):
     # return
 
     bot = Bot(NOTI_CHANNEL_ID)
-    await bot.run()
+    # await bot.run()
     if in_stock > 0:
         message = f"{product} is in stock now! Click {product_url}"
     elif in_stock < 0:
@@ -59,7 +59,7 @@ async def notify_channel(product):
             message = ""
     if message:
         await bot.send_signals(message)
-    await bot.stop()
+    # await bot.stop()
     pass
 
 
