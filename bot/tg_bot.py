@@ -38,10 +38,7 @@ class Bot:
 
 def bot_test(channel_id):
     bot = Bot(channel_id)
-    async def test():
-        # await bot.run()
-        await bot.send_signals("Test message from bot...")
-    asyncio.run(test())
+    asyncio.run(bot.send_signals("Test message from bot..."))
     pass
 
 
