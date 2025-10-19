@@ -24,6 +24,7 @@ def check_g7x_in_stock():
         soup = BeautifulSoup(response.text, 'html.parser')
         product_info = soup.find('div', class_='product-info-main')
         g7x_list = product_info.find('table', class_='table data grouped').find('tbody').find_all('tr')
+        g7x_general = product_info.find('div', class_='product-info-stock-sku').find('div', class_='stock unavailable')
         availability = []
         for item in g7x_list:
             item_name = item.find(class_='product-item-name').text.strip()
@@ -32,6 +33,8 @@ def check_g7x_in_stock():
             unavailable_div = item.find('div', class_='stock unavailable')
             if (available_div is not None) and ((unavailable_div is None) or len(unavailable_div.get('style', ''))):
                 availability.append(item_colour)
+        if (g7x_general is not None) and (g7x_general.get('style', '')):
+            availability.append('')
             # print(available_div, unavailable_div)
         return availability   # Indicate in stock colours
     except requests.RequestException as e:
@@ -45,20 +48,21 @@ async def notify_channel(product):
         product_url = G7X
     else:
         return
-    # print('running check_g7x_in_stock:', in_stock)
+    # print('running check_g7x_in_stock:', in_stock) 
     # return
 
     bot = Bot(NOTI_CHANNEL_ID)
     # await bot.run()
     if isinstance(in_stock, list):
         if len(in_stock):
-            message = f"{product} {' & '.join(in_stock)} in stock now! Click {product_url}"
+            message = f"{product} {' & '.join(in_stock).strip()} in stock now! Click {product_url}"
         else:
             hk_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
             if hk_now.minute == 0:
                 message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
             else:
                 message = ""   
+                # message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
     else:
         message = f"Error occurred when checking {product} stock."
         
