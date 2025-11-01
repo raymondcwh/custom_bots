@@ -38,8 +38,7 @@ def check_g7x_in_stock():
             # print(available_div, unavailable_div)
         return availability   # Indicate in stock colours
     except requests.RequestException as e:
-        print(f"Error checking G7X stock: {e}")
-        return -1   # Indicate an error occurred
+        return f"Error checking G7X stock: {e}"
     
 
 async def notify_channel(product):
@@ -64,7 +63,7 @@ async def notify_channel(product):
                 message = ""   
                 # message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
     else:
-        message = f"Error occurred when checking {product} stock."
+        message = in_stock  # Error message
         
     if message:
         await bot.send_signals(message)
