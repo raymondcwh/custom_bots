@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, time, argparse
 import asyncio
 import requests
 from bs4 import BeautifulSoup
@@ -41,36 +41,51 @@ def check_g7x_in_stock():
         return f"Error checking G7X stock: {e}"
     
 
-async def notify_channel(product):
-    if product.casefold() == "g7x":
-        in_stock = check_g7x_in_stock()
-        product_url = G7X
-    else:
-        return
-    # print('running check_g7x_in_stock:', in_stock) 
-    # return
-
-    bot = Bot(NOTI_CHANNEL_ID)
-    # await bot.run()
-    if isinstance(in_stock, list):
-        if len(in_stock):
-            message = f"{product} {' & '.join(in_stock).strip()} in stock now! Click {product_url}"
+async def notify_channel(product, run_times=1, sleep_secs=10):
+    check_message = True
+    while run_times > 0:
+        if product.casefold() == "g7x":
+            in_stock = check_g7x_in_stock()
+            product_url = G7X
         else:
-            hk_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
-            if hk_now.minute == 0:
-                message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
+            return
+        # print('running check_g7x_in_stock:', in_stock)  
+        # return
+
+        bot = Bot(NOTI_CHANNEL_ID)
+        # await bot.run()
+        if isinstance(in_stock, list):
+            if len(in_stock):
+                message = f"{product} {' & '.join(in_stock).strip()} in stock now! Click {product_url}"
             else:
-                message = ""   
-                # message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
-    else:
-        message = in_stock  # Error message
-        
-    if message:
-        await bot.send_signals(message)
-    # await bot.stop()
+                hk_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
+                if ((hk_now.minute % 20) == 0) and check_message:
+                    message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
+                    check_message = False
+                else:
+                    message = ""   
+                    # message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
+        else:
+            message = in_stock  # Error message
+            
+        if message:
+            await bot.send_signals(message)
+        # await bot.stop()
+        run_times -= 1
+        time.sleep(sleep_secs)
     pass
 
 
 if __name__ == "__main__":
-    product = sys.argv[1].upper()
-    asyncio.run(notify_channel(product))
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("-p", "--product", dest="product",
+                            default='g7x',
+                            help="Canon product to monitor")
+    argparser.add_argument("-t", "--run_times", dest="run_times", type=int,
+                            default=1,
+                            help="number of times to run the check")
+    argparser.add_argument("-s", "--sleep_secs", dest="sleep_secs", type=int,
+                            default=10,
+                            help="seconds to sleep between checks")
+    opts = argparser.parse_args()
+    asyncio.run(notify_channel(opts.product.upper(), opts.run_times, opts.sleep_secs))
