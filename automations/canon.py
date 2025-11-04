@@ -24,19 +24,26 @@ def check_g7x_in_stock():
         soup = BeautifulSoup(response.text, 'html.parser')
         product_info = soup.find('div', class_='product-info-main')
         g7x_list = product_info.find('table', class_='table data grouped').find('tbody').find_all('tr')
-        g7x_general = product_info.find('div', class_='product-info-stock-sku').find('div', class_='stock unavailable')
+        g7x_general = product_info.find('div', class_='product-info-stock-sku').find('div', class_='stock available')
         availability = []
+        stock_info = {}
         for item in g7x_list:
             item_name = item.find(class_='product-item-name').text.strip()
             item_colour = re.search(r'\((.*?)\)', item_name).group(1)
-            available_div = item.find('div', class_='stock available')
+            qty = item.find('td', class_='col qty').find('div').text.strip()
+            stock_info[item_colour] = qty
             unavailable_div = item.find('div', class_='stock unavailable')
-            if (available_div is not None) and ((unavailable_div is None) or len(unavailable_div.get('style', ''))):
+            if qty.isnumeric() or (qty == '') or (unavailable_div is None) or (unavailable_div.text.strip() == ''):
                 availability.append(item_colour)
-        if (g7x_general is not None) and (g7x_general.get('style', '')):
-            availability.append('')
+            # available_div = item.find('div', class_='stock available')
+            # unavailable_div = item.find('div', class_='stock unavailable')
+            # if (available_div is not None) and ((unavailable_div is None) or len(unavailable_div.get('style', ''))):
+            #     availability.append(item_colour)
             # print(available_div, unavailable_div)
-        return availability   # Indicate in stock colours
+        if g7x_general is not None:
+            return (availability, stock_info)
+        else:
+            return ([], stock_info)  # Indicate in stock colours
     except requests.RequestException as e:
         return f"Error checking G7X stock: {e}"
     
@@ -45,22 +52,29 @@ async def notify_channel(product, run_times=1, sleep_secs=10):
     check_message = True
     while run_times > 0:
         if product.casefold() == "g7x":
-            in_stock = check_g7x_in_stock()
+            check_result = check_g7x_in_stock()
+            if isinstance(check_result, tuple):
+                in_stock, stock_info = check_result
+            else:
+                in_stock = check_result
             product_url = G7X
         else:
             return
-        # print('running check_g7x_in_stock:', in_stock)  
+        # print('running check_g7x_in_stock:', in_stock)
         # return
 
         bot = Bot(NOTI_CHANNEL_ID)
         # await bot.run()
         if isinstance(in_stock, list):
+            # print(stock_info)
             if len(in_stock):
                 message = f"{product} {' & '.join(in_stock).strip()} in stock now! Click {product_url}"
             else:
                 hk_now = dt.datetime.now(dt.timezone(dt.timedelta(hours=8)))
                 if ((hk_now.minute % 20) == 0) and check_message:
-                    message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}"
+                    message = f"{product} monitor still running at {hk_now.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                    for colour, qty in stock_info.items():
+                        message += f"{colour}: {qty}\n"
                     check_message = False
                 else:
                     message = ""   
