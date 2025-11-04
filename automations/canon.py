@@ -27,23 +27,24 @@ def check_g7x_in_stock():
         g7x_general = product_info.find('div', class_='product-info-stock-sku').find('div', class_='stock available')
         availability = []
         stock_info = {}
-        for item in g7x_list:
-            item_name = item.find(class_='product-item-name').text.strip()
-            item_colour = re.search(r'\((.*?)\)', item_name).group(1)
-            qty = item.find('td', class_='col qty').find('div').text.strip()
-            stock_info[item_colour] = qty
-            unavailable_div = item.find('div', class_='stock unavailable')
-            if qty.isnumeric() or (qty == '') or (unavailable_div is None) or (unavailable_div.text.strip() == ''):
-                availability.append(item_colour)
+        if g7x_general:
+            for item in g7x_list:
+                item_name = item.find(class_='product-item-name').text.strip()
+                item_colour = re.search(r'\((.*?)\)', item_name).group(1)
+                qty = item.find('td', class_='col qty').find('div').text.strip()
+                stock_info[item_colour] = qty
+                unavailable_div = item.find('div', class_='stock unavailable')
+                if qty.isnumeric() or (qty == '') or (unavailable_div is None) or (unavailable_div.text.strip() == ''):
+                    availability.append(item_colour)
             # available_div = item.find('div', class_='stock available')
             # unavailable_div = item.find('div', class_='stock unavailable')
             # if (available_div is not None) and ((unavailable_div is None) or len(unavailable_div.get('style', ''))):
             #     availability.append(item_colour)
             # print(available_div, unavailable_div)
-        if g7x_general is not None:
-            return (availability, stock_info)
         else:
-            return ([], stock_info)  # Indicate in stock colours
+            general_stock = product_info.find('div', class_='product-info-stock-sku').find('div', class_='stock unavailable')
+            stock_info['G7X'] = general_stock.text.strip() if general_stock else ''
+        return (availability, stock_info)  # Indicate in stock colours
     except requests.RequestException as e:
         return f"Error checking G7X stock: {e}"
     
@@ -66,7 +67,7 @@ async def notify_channel(product, run_times=1, sleep_secs=10):
         bot = Bot(NOTI_CHANNEL_ID)
         # await bot.run()
         if isinstance(in_stock, list):
-            # print(stock_info)
+            print(stock_info)
             if len(in_stock):
                 message = f"{product} {' & '.join(in_stock).strip()} in stock now! Click {product_url}"
             else:
